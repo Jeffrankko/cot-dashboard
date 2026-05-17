@@ -6,9 +6,9 @@
     "cl":   "https://www.tradingview.com/x/adDmv5bf/"
   },
   "tvSymbols": {
-    "gold": "COMEX:GC1!",
-    "es":   "CME:ES1!",
-    "nq":   "CME:NQ1!",
-    "cl":   "NYMEX:CL1!"
+    "gold": "TVC:GOLD",
+    "es":   "AMEX:SPY",
+    "nq":   "NASDAQ:QQQ",
+    "cl":   "TVC:USOIL"
   }
 }

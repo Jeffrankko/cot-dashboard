@@ -274,7 +274,7 @@ const ASSETS = [
     id: 'gold', label: 'Gold', ticker: 'AU',
     accent: '#d4a017', bg: 'rgba(212,160,23,0.18)',
     subtitle: 'COMEX · 100 Troy Oz/contract · COT Legacy Futures',
-    tvSymbol: 'COMEX:GC1!',
+    tvSymbol: 'TVC:GOLD',
     chartPageUrl: 'https://www.tradingview.com/x/SzrSi8LE/',
     cotHistory: null,
     oi: '376,496',
@@ -300,7 +300,7 @@ const ASSETS = [
     id: 'es', label: 'E-Mini S&P 500', ticker: 'ES',
     accent: '#58a6ff', bg: 'rgba(88,166,255,0.15)',
     subtitle: 'CME · COT Legacy &amp; Financial Futures · Code 13874A',
-    tvSymbol: 'CME:ES1!',
+    tvSymbol: 'AMEX:SPY',
     chartPageUrl: 'https://www.tradingview.com/x/tSq2bmnU/',
     cotHistory: null,
     oi: '2,056,229',
@@ -337,7 +337,7 @@ const ASSETS = [
     id: 'nq', label: 'NASDAQ-100 Mini', ticker: 'NQ',
     accent: '#bc8cff', bg: 'rgba(188,140,255,0.15)',
     subtitle: 'CME · Disaggregated Financial COT · Code 209742',
-    tvSymbol: 'CME:NQ1!',
+    tvSymbol: 'NASDAQ:QQQ',
     chartPageUrl: 'https://www.tradingview.com/x/FubaSZSR/',
     cotHistory: null,
     oi: '287,752',
@@ -365,7 +365,7 @@ const ASSETS = [
     id: 'cl', label: 'Crude Oil (WTI)', ticker: 'CL',
     accent: '#e8724a', bg: 'rgba(232,114,74,0.15)',
     subtitle: 'NYMEX · 1,000 Barrels/contract · COT Legacy Futures · Code 067651',
-    tvSymbol: 'NYMEX:CL1!',
+    tvSymbol: 'TVC:USOIL',
     chartPageUrl: 'https://www.tradingview.com/x/adDmv5bf/',
     cotHistory: null,
     oi: '2,081,927',
@@ -437,7 +437,7 @@ function buildPanels() {
           <div class="chart-header-left">
             <div>
               <div class="chart-title">${a.label} — Live Price</div>
-              <div class="chart-subtitle">Live · TradingView (use toolbar to change timeframe)</div>
+              <div class="chart-subtitle">Live · Spot/ETF equivalent · TradingView</div>
             </div>
           </div>
           ${a.chartPageUrl ? `<a class="tv-link" href="${a.chartPageUrl}" target="_blank" rel="noopener">View COT Chart ↗</a>` : ''}
