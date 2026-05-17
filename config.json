@@ -1,0 +1,14 @@
+{
+  "charts": {
+    "gold": "https://www.tradingview.com/x/SzrSi8LE/",
+    "es":   "https://www.tradingview.com/x/tSq2bmnU/",
+    "nq":   "https://www.tradingview.com/x/FubaSZSR/",
+    "cl":   "https://www.tradingview.com/x/adDmv5bf/"
+  },
+  "tvSymbols": {
+    "gold": "COMEX:GC1!",
+    "es":   "CME:ES1!",
+    "nq":   "CME:NQ1!",
+    "cl":   "NYMEX:CL1!"
+  }
+}

@@ -1,0 +1,51 @@
+name: Weekly COT Update
+
+on:
+  # CFTC publishes Friday 3:30 pm ET (19:30–20:30 UTC depending on season).
+  # Tradingster updates within a few hours of that.
+  # Running Saturday 08:00 UTC gives ~12 hours for tradingster to fully update.
+  schedule:
+    - cron: "0 8 * * 6"
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate index.html
+        run: python generate.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html cot_history.json
+          if git diff --cached --quiet; then
+            echo "No changes to index.html — skipping commit."
+          else
+            REPORT_DATE=$(python -c "
+          import pandas as pd, requests, io
+          df = pd.read_csv(io.StringIO(requests.get('https://www.cftc.gov/dea/newcot/deafut.txt', timeout=30).text), header=None, dtype=str)
+          print(df.iloc[0, 2].strip())
+          " 2>/dev/null || date +%Y-%m-%d)
+            git commit -m "chore: update COT data for ${REPORT_DATE}"
+            git push
+          fi

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COT Report Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --long: #3fb950;
+      --short: #f85149;
+      --neutral: #58a6ff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+    header h1 span { color: var(--neutral); }
+
+    .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .report-date {
+      font-size: 0.8rem; color: var(--muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 14px;
+    }
+
+    .source-link { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+    .source-link:hover { color: var(--neutral); }
+
+    .tab-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--text); }
+
+    .tab-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 36px auto;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .asset-panel { display: none; flex-direction: column; gap: 20px; }
+    .asset-panel.active { display: flex; }
+
+    .analysis-box {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .analysis-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .analysis-title-wrap { display: flex; align-items: center; gap: 14px; }
+
+    .asset-icon {
+      width: 46px; height: 46px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; flex-shrink: 0;
+    }
+
+    .asset-title h2 { font-size: 1.1rem; font-weight: 600; }
+    .asset-title p  { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .verdict-badge {
+      display: flex; align-items: center; gap: 8px;
+      border-radius: 24px; padding: 6px 16px;
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+
+    .verdict-badge.bullish  { background: rgba(63,185,80,0.15);  color: var(--long);    border: 1px solid rgba(63,185,80,0.35); }
+    .verdict-badge.bearish  { background: rgba(248,81,73,0.15);  color: var(--short);   border: 1px solid rgba(248,81,73,0.35); }
+    .verdict-badge.mixed    { background: rgba(88,166,255,0.12); color: var(--neutral); border: 1px solid rgba(88,166,255,0.3); }
+
+    .verdict-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    .analysis-body {
+      padding: 20px 22px;
+      display: flex; flex-direction: column; gap: 16px;
+      background: var(--surface);
+    }
+
+    .analysis-summary { font-size: 0.9rem; line-height: 1.65; color: #c9d1d9; }
+    .analysis-summary strong { color: var(--text); }
+
+    .analysis-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .stat-chip {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 16px;
+      display: flex; flex-direction: column; gap: 3px; min-width: 120px;
+    }
+
+    .stat-chip .s-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-chip .s-value { font-size: 0.97rem; font-weight: 700; }
+    .s-value.pos { color: var(--long); }
+    .s-value.neg { color: var(--short); }
+    .s-value.neu { color: var(--neutral); }
+
+    .positions-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .section-label {
+      padding: 14px 22px 6px;
+      font-size: 0.72rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+
+    .positions-grid { padding: 10px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+
+    .pos-row {
+      display: grid;
+      grid-template-columns: 190px 1fr 100px 110px;
+      gap: 14px; align-items: center;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 13px 16px;
+      transition: border-color 0.15s;
+    }
+
+    .pos-row:hover { border-color: #484f58; }
+
+    .trader-type { font-size: 0.84rem; font-weight: 500; line-height: 1.4; }
+    .trader-sub  { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+    .long-short-pair { display: flex; flex-direction: column; gap: 5px; }
+    .ls-item { display: flex; align-items: center; gap: 7px; font-size: 0.81rem; }
+    .ls-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .ls-dot.long  { background: var(--long); }
+    .ls-dot.short { background: var(--short); }
+    .ls-label { color: var(--muted); width: 34px; font-size: 0.75rem; }
+    .ls-value { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+    .mini-bars { display: flex; flex-direction: column; gap: 5px; }
+    .mini-track { height: 6px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .mini-fill-long  { height: 100%; background: var(--long);  border-radius: 4px; }
+    .mini-fill-short { height: 100%; background: var(--short); border-radius: 4px; }
+
+    .net-badge { text-align: right; }
+    .net-label { font-size: 0.67rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .net-value { font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+    .net-value.pos { color: var(--long); }
+    .net-value.neg { color: var(--short); }
+
+    .sent-wrap { padding: 14px 22px 18px; border-top: 1px solid var(--border); }
+    .sent-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+
+    .bar-row { display: flex; align-items: center; gap: 12px; }
+
+    .bar-track {
+      flex: 1; height: 10px;
+      background: rgba(248,81,73,0.12);
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--long), #56d364);
+      border-radius: 8px;
+    }
+
+    .bar-pct { font-size: 0.8rem; font-weight: 600; min-width: 38px; }
+    .bar-pct.long  { color: var(--long);  text-align: right; }
+    .bar-pct.short { color: var(--short); text-align: left; }
+
+    /* ── Chart cards ────────────────────────────────── */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chart-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chart-title {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chart-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .indicator-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.25);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      color: var(--neutral);
+      white-space: nowrap;
+    }
+
+    .tv-link {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .tv-link:hover { color: var(--neutral); border-color: var(--neutral); }
+
+    /* TradingView widget container */
+    .tv-widget-wrap {
+      height: 420px;
+      background: #131722;
+    }
+
+    /* COT history chart */
+    .cot-chart-wrap {
+      position: relative;
+      height: 280px;
+      padding: 16px;
+      background: var(--surface);
+    }
+
+    .cot-no-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    footer {
+      text-align: center; padding: 24px;
+      color: var(--muted); font-size: 0.76rem;
+      border-top: 1px solid var(--border); margin-top: 10px;
+    }
+    footer a { color: var(--neutral); text-decoration: none; }
+
+    @media (max-width: 680px) {
+      .pos-row { grid-template-columns: 1fr 1fr; }
+      .mini-bars { display: none; }
+      .tab-nav { padding: 0 16px; }
+      header { padding: 14px 16px; }
+      main { padding: 0 14px; margin-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>COT <span>Dashboard</span></h1>
+  <div class="header-right">
+    <span class="report-date">Report: %%REPORT_DATE%%</span>
+    <a class="source-link" href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener">CFTC Data ↗</a>
+  </div>
+</header>
+
+<nav class="tab-nav" id="tabNav"></nav>
+<main id="main"></main>
+
+<footer>
+  Data from <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener">CFTC Commitments of Traders</a> —
+  report dated %%REPORT_DATE%%. Auto-updated weekly. For informational purposes only.
+</footer>
+
+<script>
+const ASSETS = %%ASSETS_JSON%%;
+
+function buildTabs() {
+  const nav = document.getElementById('tabNav');
+  ASSETS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.dataset.id = a.id;
+    btn.innerHTML = `<span class="tab-icon" style="background:${a.bg};color:${a.accent}">${a.ticker}</span>${a.label}`;
+    btn.addEventListener('click', () => selectAsset(a.id));
+    nav.appendChild(btn);
+  });
+}
+
+function buildPanels() {
+  const main = document.getElementById('main');
+  const icons = { bullish: '▲', bearish: '▼', mixed: '◆' };
+
+  ASSETS.forEach(a => {
+    const panel = document.createElement('div');
+    panel.className = 'asset-panel';
+    panel.id = 'panel-' + a.id;
+
+    const sectionsHTML = a.sections.map(sec => `
+      <div class="section-label">${sec.heading}</div>
+      <div class="positions-grid">
+        ${sec.rows.map(r => `
+          <div class="pos-row">
+            <div><div class="trader-type">${r.type}</div><div class="trader-sub">${r.sub}</div></div>
+            <div class="long-short-pair">
+              <div class="ls-item"><div class="ls-dot long"></div><span class="ls-label">Long</span><span class="ls-value">${r.long}</span></div>
+              <div class="ls-item"><div class="ls-dot short"></div><span class="ls-label">Short</span><span class="ls-value">${r.short}</span></div>
+            </div>
+            <div class="mini-bars">
+              <div class="mini-track"><div class="mini-fill-long" style="width:${r.longPct}%"></div></div>
+              <div class="mini-track"><div class="mini-fill-short" style="width:${r.shortPct}%"></div></div>
+            </div>
+            <div class="net-badge"><div class="net-label">Net</div><div class="net-value ${r.netCls}">${r.net}</div></div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+
+    const shortPct = 100 - a.sentimentLongPct;
+
+    // TradingView live price chart
+    const tvHTML = a.tvSymbol ? `
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div>
+              <div class="chart-title">${a.label} — Live Price</div>
+              <div class="chart-subtitle">Weekly candles · TradingView</div>
+            </div>
+          </div>
+          ${a.chartPageUrl ? `<a class="tv-link" href="${a.chartPageUrl}" target="_blank" rel="noopener">View COT Chart ↗</a>` : ''}
+        </div>
+        <div class="tv-widget-wrap" id="tv-${a.id}"></div>
+      </div>
+    ` : '';
+
+    // COT net positions history chart
+    const hasCot = a.cotHistory && a.cotHistory.dates && a.cotHistory.dates.length > 0;
+    const cotHTML = `
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div>
+              <div class="chart-title">${a.label} — COT Net Positions</div>
+              <div class="chart-subtitle">2-year weekly · CFTC Commitments of Traders</div>
+            </div>
+            ${hasCot ? `<div class="indicator-pill">📊 ${a.cotHistory.label1} vs ${a.cotHistory.label2}</div>` : ''}
+          </div>
+        </div>
+        <div class="cot-chart-wrap">
+          ${hasCot
+            ? `<canvas id="cot-${a.id}"></canvas>`
+            : `<div class="cot-no-data">COT history will appear after the first weekly data refresh.</div>`
+          }
+        </div>
+      </div>
+    `;
+
+    panel.innerHTML = `
+      <div class="analysis-box">
+        <div class="analysis-header">
+          <div class="analysis-title-wrap">
+            <div class="asset-icon" style="background:${a.bg};color:${a.accent}">${a.ticker}</div>
+            <div class="asset-title"><h2>${a.label}</h2><p>${a.subtitle}</p></div>
+          </div>
+          <div class="verdict-badge ${a.verdict}">
+            <span class="verdict-dot"></span>${icons[a.verdict]} ${a.verdictLabel}
+          </div>
+        </div>
+        <div class="analysis-body">
+          <div class="analysis-summary">${a.analysis}</div>
+          <div class="analysis-stats">
+            ${a.chips.map(c => `
+              <div class="stat-chip">
+                <span class="s-label">${c.label}</span>
+                <span class="s-value ${c.cls}">${c.value}</span>
+              </div>
+            `).join('')}
+            <div class="stat-chip">
+              <span class="s-label">Open Interest</span>
+              <span class="s-value neu">${a.oi}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="positions-card">
+        ${sectionsHTML}
+        <div class="sent-wrap">
+          <div class="sent-label">${a.sentimentLabel}</div>
+          <div class="bar-row">
+            <span class="bar-pct short">${shortPct}% Short</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${a.sentimentLongPct}%"></div></div>
+            <span class="bar-pct long">${a.sentimentLongPct}% Long</span>
+          </div>
+        </div>
+      </div>
+      ${tvHTML}
+      ${cotHTML}
+    `;
+    main.appendChild(panel);
+  });
+}
+
+// ── TradingView widget (lazy-mount on tab switch) ─────────────────────────────
+
+const _tvReady = new Set();
+let _tvScriptLoaded = false;
+const _tvQueue = [];
+
+function _loadTvScript(cb) {
+  if (_tvScriptLoaded) { cb(); return; }
+  _tvQueue.push(cb);
+  if (document.getElementById('_tv-sdk')) return;
+  const s = document.createElement('script');
+  s.id = '_tv-sdk';
+  s.src = 'https://s3.tradingview.com/external-embedding/embed-udf-v2-bundle.js';
+  s.async = true;
+  s.onload = () => {
+    _tvScriptLoaded = true;
+    _tvQueue.splice(0).forEach(fn => fn());
+  };
+  document.head.appendChild(s);
+}
+
+function _mountTv(assetId, symbol) {
+  if (_tvReady.has(assetId)) return;
+  _tvReady.add(assetId);
+  _loadTvScript(() => {
+    // eslint-disable-next-line no-undef
+    new TradingView.widget({
+      autosize: true,
+      symbol: symbol,
+      interval: 'W',
+      timezone: 'America/New_York',
+      theme: 'dark',
+      style: '1',
+      locale: 'en',
+      toolbar_bg: '#161b22',
+      enable_publishing: false,
+      hide_side_toolbar: false,
+      allow_symbol_change: false,
+      container_id: 'tv-' + assetId,
+    });
+  });
+}
+
+// ── Chart.js COT history charts ───────────────────────────────────────────────
+
+function _initCotChart(assetId, hist) {
+  const canvas = document.getElementById('cot-' + assetId);
+  if (!canvas || !hist || !hist.dates.length) return;
+
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: hist.dates,
+      datasets: [
+        {
+          label: hist.label1,
+          data: hist.line1,
+          borderColor: '#3fb950',
+          backgroundColor: 'rgba(63,185,80,0.07)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.15,
+          fill: false,
+        },
+        {
+          label: hist.label2,
+          data: hist.line2,
+          borderColor: '#f85149',
+          backgroundColor: 'rgba(248,81,73,0.07)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.15,
+          fill: false,
+        },
+        {
+          label: '',
+          data: hist.dates.map(() => 0),
+          borderColor: 'rgba(139,148,158,0.3)',
+          borderWidth: 1,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#8b949e',
+            font: { size: 11 },
+            boxWidth: 14,
+            filter: item => item.text !== '',
+          },
+        },
+        tooltip: {
+          backgroundColor: '#21262d',
+          borderColor: '#30363d',
+          borderWidth: 1,
+          titleColor: '#e6edf3',
+          bodyColor: '#c9d1d9',
+          filter: item => item.dataset.label !== '',
+          callbacks: {
+            label: ctx => {
+              if (!ctx.dataset.label) return null;
+              const v = ctx.raw;
+              return ` ${ctx.dataset.label}: ${v >= 0 ? '+' : ''}${v.toLocaleString()}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(48,54,61,0.5)' },
+          ticks: { color: '#8b949e', maxTicksLimit: 10, font: { size: 10 } },
+        },
+        y: {
+          grid: { color: 'rgba(48,54,61,0.5)' },
+          ticks: {
+            color: '#8b949e',
+            font: { size: 10 },
+            callback: v => Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v,
+          },
+        },
+      },
+    },
+  });
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+
+function selectAsset(id) {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.style.borderBottomColor = 'transparent';
+  });
+  document.querySelectorAll('.asset-panel').forEach(p => p.classList.remove('active'));
+
+  const asset = ASSETS.find(a => a.id === id);
+  const btn   = document.querySelector(`.tab-btn[data-id="${id}"]`);
+  btn.classList.add('active');
+  btn.style.borderBottomColor = asset.accent;
+  document.getElementById('panel-' + id).classList.add('active');
+
+  // Lazy-mount TradingView widget on first tab view (needs visible container)
+  if (asset.tvSymbol) _mountTv(id, asset.tvSymbol);
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+buildTabs();
+buildPanels();
+
+// Init all COT charts now (canvases work fine in hidden panels)
+ASSETS.forEach(a => { if (a.cotHistory) _initCotChart(a.id, a.cotHistory); });
+
+// Activate first tab (mounts its TV widget)
+selectAsset(ASSETS[0].id);
+</script>
+</body>
+</html>
