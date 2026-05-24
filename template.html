@@ -317,6 +317,72 @@
       font-size: 0.82rem;
     }
 
+    /* ── Call accuracy card ─────────────────────────────── */
+    .acc-summary {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      padding: 14px 22px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .acc-badge {
+      display: flex; align-items: baseline; gap: 6px;
+      font-size: 1.5rem; font-weight: 700;
+    }
+    .acc-badge.high   { color: var(--long); }
+    .acc-badge.medium { color: #e3b341; }
+    .acc-badge.low    { color: var(--short); }
+    .acc-badge.none   { color: var(--muted); }
+    .acc-badge-sub    { font-size: 0.78rem; font-weight: 400; color: var(--muted); }
+
+    .acc-meta { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+    .acc-bar-wrap { flex: 1; min-width: 160px; }
+    .acc-bar-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase;
+                     letter-spacing: 0.05em; margin-bottom: 6px; }
+    .acc-bar-track { height: 8px; background: var(--surface2); border-radius: 6px;
+                     overflow: hidden; border: 1px solid var(--border); }
+    .acc-bar-fill  { height: 100%; border-radius: 6px;
+                     background: linear-gradient(90deg, var(--long), #56d364); }
+
+    .acc-scroll { overflow-x: auto; }
+
+    .acc-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .acc-table th {
+      text-align: left; padding: 9px 14px;
+      color: var(--muted); font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      white-space: nowrap;
+    }
+    .acc-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .acc-table tr:last-child td { border-bottom: none; }
+    .acc-table tbody tr { background: var(--surface); transition: background 0.12s; }
+    .acc-table tbody tr:hover { background: var(--surface2); }
+
+    .acc-row-correct { border-left: 3px solid var(--long) !important; }
+    .acc-row-wrong   { border-left: 3px solid var(--short) !important; }
+    .acc-row-neutral { border-left: 3px solid var(--border) !important; }
+    .acc-row-pending { border-left: 3px solid #484f58 !important; }
+
+    .verdict-mini {
+      display: inline-flex; align-items: center; gap: 4px;
+      border-radius: 12px; padding: 2px 9px;
+      font-size: 0.74rem; font-weight: 600;
+    }
+    .verdict-mini.bullish { background: rgba(63,185,80,0.12);  color: var(--long);    border: 1px solid rgba(63,185,80,0.3); }
+    .verdict-mini.bearish { background: rgba(248,81,73,0.12);  color: var(--short);   border: 1px solid rgba(248,81,73,0.3); }
+    .verdict-mini.mixed   { background: rgba(88,166,255,0.1);  color: var(--neutral); border: 1px solid rgba(88,166,255,0.25); }
+
+    .outcome-icon { font-size: 1rem; }
+    .chg-pos { color: var(--long);  font-weight: 600; }
+    .chg-neg { color: var(--short); font-weight: 600; }
+    .chg-neu { color: var(--muted); }
+
     footer {
       text-align: center; padding: 24px;
       color: var(--muted); font-size: 0.76rem;
@@ -435,6 +501,80 @@ function buildPanels() {
       </div>
     `;
 
+    // Call accuracy card
+    const acc       = a.callAccuracy || {};
+    const hist      = (a.callHistory || []).slice(0, 16); // show last 16 weeks
+    const accPct    = acc.pct;
+    const accClass  = accPct == null ? 'none' : accPct >= 65 ? 'high' : accPct >= 50 ? 'medium' : 'low';
+    const accLabel  = accPct == null ? '—' : accPct + '%';
+    const accFill   = accPct == null ? 0 : accPct;
+    const verdIcons = { bullish: '▲', bearish: '▼', mixed: '◆' };
+    const outcomeHTML = o => {
+      if (o === 'correct') return '<span class="outcome-icon" title="Correct">✅</span>';
+      if (o === 'wrong')   return '<span class="outcome-icon" title="Wrong">❌</span>';
+      if (o === 'neutral') return '<span class="outcome-icon" title="Mixed/Flat">➖</span>';
+      return '<span class="outcome-icon" title="Pending">⏳</span>';
+    };
+    const rowClass = o => `acc-row-${o || 'pending'}`;
+    const chgHTML  = chg => {
+      if (chg == null) return '<span class="chg-neu">—</span>';
+      const cls = chg > 0 ? 'chg-pos' : chg < 0 ? 'chg-neg' : 'chg-neu';
+      return `<span class="${cls}">${chg > 0 ? '+' : ''}${chg.toFixed(2)}%</span>`;
+    };
+
+    const accHTML = hist.length === 0 ? '' : `
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-header-left">
+            <div>
+              <div class="chart-title">${a.label} — COT Call Accuracy</div>
+              <div class="chart-subtitle">Weekly non-commercial verdict vs next-week price move · last 16 weeks shown</div>
+            </div>
+          </div>
+          <div class="acc-badge ${accClass}">
+            ${accLabel}
+            <span class="acc-badge-sub">${accPct != null ? `(${acc.correct}/${acc.total})` : 'building…'}</span>
+          </div>
+        </div>
+        <div class="acc-summary">
+          <div>
+            <div class="acc-bar-label">Accuracy (excl. Mixed calls)</div>
+            <div class="acc-bar-wrap">
+              <div class="acc-bar-track"><div class="acc-bar-fill" style="width:${accFill}%"></div></div>
+            </div>
+          </div>
+          <div class="acc-meta">
+            ✅ ${acc.correct ?? 0} correct &nbsp;·&nbsp;
+            ❌ ${acc.wrong  ?? 0} wrong &nbsp;·&nbsp;
+            ➖ ${(a.callHistory || []).filter(e => e.outcome === 'neutral').length} mixed/flat &nbsp;·&nbsp;
+            ⏳ ${(a.callHistory || []).filter(e => e.outcome === 'pending').length} pending
+          </div>
+        </div>
+        <div class="acc-scroll">
+          <table class="acc-table">
+            <thead>
+              <tr>
+                <th>COT Date</th>
+                <th>Verdict</th>
+                <th>1W Price Chg</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${hist.map(e => `
+                <tr class="${rowClass(e.outcome)}">
+                  <td>${e.cotDate}</td>
+                  <td><span class="verdict-mini ${e.verdict}">${verdIcons[e.verdict]} ${e.verdictLabel}</span></td>
+                  <td>${chgHTML(e.priceChangePct)}</td>
+                  <td>${outcomeHTML(e.outcome)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
     panel.innerHTML = `
       <div class="analysis-box">
         <div class="analysis-header">
@@ -475,6 +615,7 @@ function buildPanels() {
       </div>
       ${tvHTML}
       ${cotHTML}
+      ${accHTML}
     `;
     main.appendChild(panel);
   });

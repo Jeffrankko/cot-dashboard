@@ -14,7 +14,7 @@ import json
 import sys
 import zipfile
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 
@@ -41,24 +41,28 @@ ASSETS_CFG = [
         accent="#d4a017", bg="rgba(212,160,23,0.18)",
         subtitle="COMEX · 100 Troy Oz/contract · COT Legacy Futures",
         cftc_code="088691", legacy=True, financial=False, hist_type="legacy",
+        yahoo_symbol="GC=F",
     ),
     dict(
         id="es", label="E-Mini S&P 500", ticker="ES",
         accent="#58a6ff", bg="rgba(88,166,255,0.15)",
         subtitle="CME · COT Legacy &amp; Financial Futures · Code 13874A",
         cftc_code="13874A", legacy=True, financial=True, hist_type="legacy",
+        yahoo_symbol="ES=F",
     ),
     dict(
         id="nq", label="NASDAQ-100 Mini", ticker="NQ",
         accent="#bc8cff", bg="rgba(188,140,255,0.15)",
-        subtitle="CME · Disaggregated Financial COT · Code 209742",
-        cftc_code="209742", legacy=False, financial=True, hist_type="financial",
+        subtitle="CME · COT Legacy &amp; Financial Futures · Code 209742",
+        cftc_code="209742", legacy=True, financial=True, hist_type="legacy",
+        yahoo_symbol="NQ=F",
     ),
     dict(
         id="cl", label="Crude Oil (WTI)", ticker="CL",
         accent="#e8724a", bg="rgba(232,114,74,0.15)",
         subtitle="NYMEX · 1,000 Barrels/contract · COT Legacy Futures · Code 067651",
         cftc_code="067651", legacy=True, financial=False, hist_type="legacy",
+        yahoo_symbol="CL=F",
     ),
 ]
 
@@ -168,6 +172,141 @@ def _extract_rows(all_rows: list, cftc_code: str, is_financial: bool) -> dict:
             }
 
     return result
+
+
+# ── Yahoo Finance price helpers ───────────────────────────────────────────────
+
+_price_cache: dict = {}
+
+
+def _fetch_weekly_prices(yahoo_symbol: str) -> dict:
+    """Fetch ~3 years of weekly closes from Yahoo Finance. Returns {YYYY-MM-DD: close}."""
+    if yahoo_symbol in _price_cache:
+        return _price_cache[yahoo_symbol]
+    url = (
+        f"https://query2.finance.yahoo.com/v8/finance/chart/{yahoo_symbol}"
+        f"?interval=1wk&range=3y"
+    )
+    try:
+        resp = SESSION.get(url, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        result = data["chart"]["result"][0]
+        timestamps = result["timestamp"]
+        closes     = result["indicators"]["quote"][0]["close"]
+        prices: dict = {}
+        for ts, close in zip(timestamps, closes):
+            if close is not None:
+                d = datetime.fromtimestamp(ts, tz=__import__('datetime').timezone.utc).strftime("%Y-%m-%d")
+                prices[d] = round(float(close), 4)
+        _price_cache[yahoo_symbol] = prices
+        print(f"    Prices: {len(prices)} weekly closes for {yahoo_symbol}")
+        return prices
+    except Exception as exc:
+        print(f"    WARNING: price fetch failed for {yahoo_symbol}: {exc}", file=sys.stderr)
+        return {}
+
+
+def _price_on_or_before(prices: dict, target: str) -> float | None:
+    """Most-recent weekly close on or before target date."""
+    tdt = datetime.strptime(target, "%Y-%m-%d")
+    best = None
+    for d, p in prices.items():
+        ddt = datetime.strptime(d, "%Y-%m-%d")
+        if ddt <= tdt:
+            if best is None or ddt > datetime.strptime(best[0], "%Y-%m-%d"):
+                best = (d, p)
+    return best[1] if best else None
+
+
+def _price_one_week_after(prices: dict, cot_date: str) -> float | None:
+    """Weekly close whose candle opens 5–14 days after cot_date (i.e. next week's close)."""
+    cdt = datetime.strptime(cot_date, "%Y-%m-%d")
+    for d in sorted(prices.keys()):
+        delta = (datetime.strptime(d, "%Y-%m-%d") - cdt).days
+        if 5 <= delta <= 14:
+            return prices[d]
+    return None
+
+
+def _build_call_history(leg_rows: dict, fin_rows: dict, hist_type: str,
+                        prices: dict) -> tuple[list, dict]:
+    """
+    Generate a scored verdict for every COT week in the historical data.
+    Returns (call_history_list, accuracy_stats).
+    call_history_list is sorted newest-first, capped at HISTORY_WEEKS entries.
+    Only legacy nc_net is used for the verdict regardless of hist_type so the
+    displayed accuracy always reflects commercial/non-commercial positioning.
+    """
+    source_rows = leg_rows if (hist_type == "legacy" and leg_rows) else fin_rows
+    if not source_rows:
+        return [], {"correct": 0, "wrong": 0, "total": 0, "pct": None}
+
+    entries = []
+    for date_str in sorted(source_rows.keys()):
+        if hist_type == "legacy":
+            d       = leg_rows[date_str]
+            nc_long  = d.get("nc_long",  0) or 0
+            nc_short = d.get("nc_short", 0) or 0
+            oi       = d.get("oi",       0) or 0
+            nc_net   = nc_long - nc_short
+            v_id, v_label = verdict(nc_net, oi)
+        else:  # financial
+            d       = fin_rows[date_str]
+            am_long  = d.get("am_long",  0) or 0
+            am_short = d.get("am_short", 0) or 0
+            lev_long  = d.get("lev_long",  0) or 0
+            lev_short = d.get("lev_short", 0) or 0
+            am_net  = am_long  - am_short
+            lev_net = lev_long - lev_short
+            if am_net > 0 and lev_net < 0:
+                v_id, v_label = "mixed",   "Mixed"
+            elif am_net > 0:
+                v_id, v_label = "bullish", "Bullish"
+            elif am_net < 0 and lev_net > 0:
+                v_id, v_label = "mixed",   "Mixed"
+            else:
+                v_id, v_label = "bearish", "Bearish"
+
+        p_curr = _price_on_or_before(prices, date_str)
+        p_next = _price_one_week_after(prices, date_str)
+
+        if p_curr and p_next:
+            chg = (p_next - p_curr) / p_curr * 100
+            chg = round(chg, 2)
+            if v_id == "mixed":
+                outcome = "neutral"
+            elif v_id == "bullish":
+                outcome = "correct" if chg > 0 else "wrong"
+            else:  # bearish
+                outcome = "correct" if chg < 0 else "wrong"
+        else:
+            chg     = None
+            outcome = "pending"
+
+        entries.append({
+            "cotDate":       date_str,
+            "verdict":       v_id,
+            "verdictLabel":  v_label,
+            "priceAtDate":   round(p_curr, 2) if p_curr else None,
+            "priceNextWeek": round(p_next, 2) if p_next else None,
+            "priceChangePct": chg,
+            "outcome":       outcome,
+        })
+
+    # Sort newest first, keep up to HISTORY_WEEKS
+    entries.sort(key=lambda e: e["cotDate"], reverse=True)
+    entries = entries[:HISTORY_WEEKS]
+
+    # Accuracy stats (exclude mixed/pending from denominator)
+    resolved = [e for e in entries if e["outcome"] in ("correct", "wrong")]
+    correct  = sum(1 for e in resolved if e["outcome"] == "correct")
+    wrong    = len(resolved) - correct
+    total    = len(resolved)
+    pct      = round(correct / total * 100) if total else None
+
+    accuracy = {"correct": correct, "wrong": wrong, "total": total, "pct": pct}
+    return entries, accuracy
 
 
 # ── Formatting helpers ────────────────────────────────────────────────────────
@@ -462,11 +601,20 @@ def build_asset(cfg: dict) -> dict:
     else:
         cot_history = {"dates": [], "line1": [], "line2": [], "label1": "", "label2": ""}
 
+    # Fetch Yahoo prices and build call accuracy history
+    print(f"  Fetching Yahoo Finance prices for {cfg['yahoo_symbol']}...")
+    prices = _fetch_weekly_prices(cfg["yahoo_symbol"])
+    call_history, call_accuracy = _build_call_history(
+        leg_rows, fin_rows, cfg["hist_type"], prices
+    )
+
     return dict(
         id=cfg["id"], label=cfg["label"], ticker=cfg["ticker"],
         accent=cfg["accent"], bg=cfg["bg"], subtitle=cfg["subtitle"],
         oi=f"{oi_val:,}", reportDate=report_date,
         cotHistory=cot_history,
+        callHistory=call_history,
+        callAccuracy=call_accuracy,
         **computed,
     )
 

@@ -1,11 +1,10 @@
 name: Weekly COT Update
 
 on:
-  # CFTC publishes Friday 3:30 pm ET (19:30–20:30 UTC depending on season).
-  # Tradingster updates within a few hours of that.
-  # Running Saturday 08:00 UTC gives ~12 hours for tradingster to fully update.
+  # CFTC publishes Fridays at 3:30 pm ET (19:30–20:30 UTC).
+  # Running Saturday 00:00 UTC gives ~4–5 hours for CFTC to publish.
   schedule:
-    - cron: "0 8 * * 6"
+    - cron: "0 0 * * 6"
 
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
@@ -37,15 +36,19 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html cot_history.json
+          git add index.html
           if git diff --cached --quiet; then
             echo "No changes to index.html — skipping commit."
           else
             REPORT_DATE=$(python -c "
-          import pandas as pd, requests, io
-          df = pd.read_csv(io.StringIO(requests.get('https://www.cftc.gov/dea/newcot/deafut.txt', timeout=30).text), header=None, dtype=str)
-          print(df.iloc[0, 2].strip())
-          " 2>/dev/null || date +%Y-%m-%d)
-            git commit -m "chore: update COT data for ${REPORT_DATE}"
+import json, pathlib
+data = json.loads(pathlib.Path('index.html').read_text())
+" 2>/dev/null || date +%Y-%m-%d)
+            REPORT_DATE=$(python -c "
+import re, pathlib
+m = re.search(r'%%REPORT_DATE%%|Report: ([A-Za-z]+ \d+, \d{4})', pathlib.Path('index.html').read_text())
+" 2>/dev/null || date +%Y-%m-%d)
+            REPORT_DATE=$(date +%Y-%m-%d)
+            git commit -m "chore: weekly COT update ${REPORT_DATE}"
             git push
           fi
