@@ -32,23 +32,22 @@ jobs:
       - name: Generate index.html
         run: python generate.py
 
-      - name: Commit and push if changed
+      - name: Commit updated index.html
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
           if git diff --cached --quiet; then
-            echo "No changes to index.html — skipping commit."
+            echo "No changes — skipping commit."
           else
-            REPORT_DATE=$(python -c "
-import json, pathlib
-data = json.loads(pathlib.Path('index.html').read_text())
-" 2>/dev/null || date +%Y-%m-%d)
-            REPORT_DATE=$(python -c "
-import re, pathlib
-m = re.search(r'%%REPORT_DATE%%|Report: ([A-Za-z]+ \d+, \d{4})', pathlib.Path('index.html').read_text())
-" 2>/dev/null || date +%Y-%m-%d)
-            REPORT_DATE=$(date +%Y-%m-%d)
-            git commit -m "chore: weekly COT update ${REPORT_DATE}"
+            git commit -m "chore: weekly COT update $(date +%Y-%m-%d)"
             git push
           fi
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --prod --dir . --auth "$NETLIFY_AUTH_TOKEN" --site "$NETLIFY_SITE_ID"
