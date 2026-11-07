@@ -404,7 +404,7 @@
 <header>
   <h1>COT <span>Dashboard</span></h1>
   <div class="header-right">
-    <span class="report-date">Report: October 27, 2026</span>
+    <span class="report-date">Report: November 3, 2026</span>
     <a class="source-link" href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener">CFTC Data ↗</a>
   </div>
 </header>
@@ -414,7 +414,7 @@
 
 <footer>
   Data from <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener">CFTC Commitments of Traders</a> —
-  report dated October 27, 2026. Auto-updated weekly. For informational purposes only.
+  report dated November 3, 2026. Auto-updated weekly. For informational purposes only.
 </footer>
 
 <script>
@@ -426,8 +426,8 @@ const ASSETS = [
     "accent": "#d4a017",
     "bg": "rgba(212,160,23,0.18)",
     "subtitle": "COMEX · 100 Troy Oz/contract · COT Legacy Futures",
-    "oi": "396,810",
-    "reportDate": "2026-10-27",
+    "oi": "399,169",
+    "reportDate": "2026-11-03",
     "cotHistory": {
       "dates": [
         "2025-01-07",
@@ -524,7 +524,8 @@ const ASSETS = [
         "2026-10-06",
         "2026-10-13",
         "2026-10-20",
-        "2026-10-27"
+        "2026-10-27",
+        "2026-11-03"
       ],
       "line1": [
         254911,
@@ -621,7 +622,8 @@ const ASSETS = [
         210335,
         207879,
         199865,
-        186451
+        186451,
+        179548
       ],
       "line2": [
         -278646,
@@ -718,20 +720,30 @@ const ASSETS = [
         -244527,
         -242531,
         -235582,
-        -215624
+        -215624,
+        -204902
       ],
       "label1": "Non-Commercial Net",
       "label2": "Commercial Net"
     },
     "callHistory": [
       {
+        "cotDate": "2026-11-03",
+        "verdict": "bullish",
+        "verdictLabel": "Bullish",
+        "priceAtDate": 4074.9,
+        "priceNextWeek": null,
+        "priceChangePct": null,
+        "outcome": "pending"
+      },
+      {
         "cotDate": "2026-10-27",
         "verdict": "bullish",
         "verdictLabel": "Bullish",
         "priceAtDate": 3898.9,
-        "priceNextWeek": null,
-        "priceChangePct": null,
-        "outcome": "pending"
+        "priceNextWeek": 4074.9,
+        "priceChangePct": 4.51,
+        "outcome": "correct"
       },
       {
         "cotDate": "2026-10-20",
@@ -1581,31 +1593,31 @@ const ASSETS = [
       }
     ],
     "callAccuracy": {
-      "correct": 55,
+      "correct": 56,
       "wrong": 39,
-      "total": 94,
+      "total": 95,
       "pct": 59
     },
     "verdict": "bullish",
     "verdictLabel": "Bullish",
-    "analysis": "<strong>Non-commercial traders (speculators &amp; hedge funds)</strong> are <strong>net long</strong> with <strong>+186,451 contracts</strong>, holding 86% long vs 14% short — a clear bullish lean from the speculative community. Week-over-week, specs trimmed <strong>13,418 longs</strong> while cut 4 shorts.<br><br><strong>Commercial traders</strong> (producers and hedgers) hold a net position of <strong>−215,624</strong>. This is standard hedging behaviour, not a directional bet. Small traders (non-reportable) are net <strong>+29,173</strong>.<br><br><strong>Overall bias: Bullish.</strong> Speculative longs are dominant. Positioning is becoming stretched — extreme net readings historically precede short-term reversals.",
+    "analysis": "<strong>Non-commercial traders (speculators &amp; hedge funds)</strong> are <strong>net long</strong> with <strong>+179,548 contracts</strong>, holding 84% long vs 16% short — a clear bullish lean from the speculative community. Week-over-week, specs trimmed <strong>3,194 longs</strong> while added 3,709 new shorts.<br><br><strong>Commercial traders</strong> (producers and hedgers) hold a net position of <strong>−204,902</strong>. This is standard hedging behaviour, not a directional bet. Small traders (non-reportable) are net <strong>+25,354</strong>.<br><br><strong>Overall bias: Bullish.</strong> Speculative longs are dominant. Positioning is becoming stretched — extreme net readings historically precede short-term reversals.",
     "sentimentLabel": "Non-Commercial Long vs Short",
-    "sentimentLongPct": 86,
+    "sentimentLongPct": 84,
     "chips": [
       {
         "label": "Spec Net",
-        "value": "+186,451",
+        "value": "+179,548",
         "cls": "pos"
       },
       {
         "label": "WoW Longs",
-        "value": "−13,418",
+        "value": "−3,194",
         "cls": "neg"
       },
       {
         "label": "WoW Shorts",
-        "value": "−4",
-        "cls": "pos"
+        "value": "+3,709",
+        "cls": "neg"
       }
     ],
     "sections": [
@@ -1615,19 +1627,19 @@ const ASSETS = [
           {
             "type": "Non-Commercial",
             "sub": "Speculators / Hedge Funds",
-            "long": "223,724",
-            "short": "37,273",
-            "net": "+186,451",
+            "long": "220,530",
+            "short": "40,982",
+            "net": "+179,548",
             "netCls": "pos",
-            "longPct": 86,
-            "shortPct": 14
+            "longPct": 84,
+            "shortPct": 16
           },
           {
             "type": "Commercial",
             "sub": "Producers / Hedgers",
-            "long": "64,109",
-            "short": "279,733",
-            "net": "−215,624",
+            "long": "64,326",
+            "short": "269,228",
+            "net": "−204,902",
             "netCls": "neg",
             "longPct": 19,
             "shortPct": 81
@@ -1635,12 +1647,12 @@ const ASSETS = [
           {
             "type": "Non-Reportable",
             "sub": "Small Traders / Retail",
-            "long": "48,622",
-            "short": "19,449",
-            "net": "+29,173",
+            "long": "46,024",
+            "short": "20,670",
+            "net": "+25,354",
             "netCls": "pos",
-            "longPct": 71,
-            "shortPct": 29
+            "longPct": 69,
+            "shortPct": 31
           }
         ]
       }
@@ -1656,8 +1668,8 @@ const ASSETS = [
     "accent": "#58a6ff",
     "bg": "rgba(88,166,255,0.15)",
     "subtitle": "CME · COT Legacy &amp; Financial Futures · Code 13874A",
-    "oi": "1,955,711",
-    "reportDate": "2026-10-27",
+    "oi": "1,986,532",
+    "reportDate": "2026-11-03",
     "cotHistory": {
       "dates": [
         "2025-01-07",
@@ -1754,7 +1766,8 @@ const ASSETS = [
         "2026-10-06",
         "2026-10-13",
         "2026-10-20",
-        "2026-10-27"
+        "2026-10-27",
+        "2026-11-03"
       ],
       "line1": [
         -62203,
@@ -1851,7 +1864,8 @@ const ASSETS = [
         -154070,
         -140995,
         -142671,
-        -134368
+        -134368,
+        -129414
       ],
       "line2": [
         -57197,
@@ -1948,20 +1962,30 @@ const ASSETS = [
         43065,
         34667,
         33922,
-        17301
+        17301,
+        5195
       ],
       "label1": "Non-Commercial Net",
       "label2": "Commercial Net"
     },
     "callHistory": [
       {
+        "cotDate": "2026-11-03",
+        "verdict": "mixed",
+        "verdictLabel": "Mixed",
+        "priceAtDate": 7402.0,
+        "priceNextWeek": null,
+        "priceChangePct": null,
+        "outcome": "pending"
+      },
+      {
         "cotDate": "2026-10-27",
         "verdict": "mixed",
         "verdictLabel": "Mixed",
         "priceAtDate": 7614.0,
-        "priceNextWeek": null,
-        "priceChangePct": null,
-        "outcome": "pending"
+        "priceNextWeek": 7402.0,
+        "priceChangePct": -2.78,
+        "outcome": "neutral"
       },
       {
         "cotDate": "2026-10-20",
@@ -2818,28 +2842,28 @@ const ASSETS = [
     },
     "verdict": "mixed",
     "verdictLabel": "Mixed — Institutions Bullish / Leveraged Funds Bearish",
-    "analysis": "<strong>Asset Managers</strong> — the largest institutional group — are <strong>net long +923,449</strong>, holding 86% long vs 14% short. This reflects sustained bullish institutional conviction.<br><br><strong>Leveraged Funds</strong> (hedge funds, CTAs) are <strong>net short −400,604</strong> (17% long), representing the speculative directional bet. Leveraged funds covered <strong>3,596 short contracts</strong> this week, reducing their bearish exposure. <strong>Dealers</strong> are net <strong>−639,593</strong>, primarily reflecting client-flow hedging.<br><br><strong>Overall bias: Mixed.</strong> The divergence between institutional longs and leveraged shorts is notable — a large spec short base can accelerate a rally if a positive catalyst arrives (short squeeze risk).",
+    "analysis": "<strong>Asset Managers</strong> — the largest institutional group — are <strong>net long +928,584</strong>, holding 86% long vs 14% short. This reflects sustained bullish institutional conviction.<br><br><strong>Leveraged Funds</strong> (hedge funds, CTAs) are <strong>net short −372,318</strong> (20% long), representing the speculative directional bet. Leveraged funds covered <strong>5,096 short contracts</strong> this week, reducing their bearish exposure. <strong>Dealers</strong> are net <strong>−688,574</strong>, primarily reflecting client-flow hedging.<br><br><strong>Overall bias: Mixed.</strong> The divergence between institutional longs and leveraged shorts is notable — a large spec short base can accelerate a rally if a positive catalyst arrives (short squeeze risk).",
     "sentimentLabel": "Asset Manager Long vs Short",
     "sentimentLongPct": 86,
     "chips": [
       {
         "label": "Asset Mgr Net",
-        "value": "+923,449",
+        "value": "+928,584",
         "cls": "pos"
       },
       {
         "label": "Lev Funds Net",
-        "value": "−400,604",
+        "value": "−372,318",
         "cls": "neg"
       },
       {
         "label": "Dealer Net",
-        "value": "−639,593",
+        "value": "−688,574",
         "cls": "neg"
       },
       {
         "label": "Lev WoW Short",
-        "value": "−3,596",
+        "value": "−5,096",
         "cls": "pos"
       }
     ],
@@ -2850,19 +2874,19 @@ const ASSETS = [
           {
             "type": "Non-Commercial",
             "sub": "Speculators / Hedge Funds",
-            "long": "215,924",
-            "short": "350,292",
-            "net": "−134,368",
+            "long": "229,322",
+            "short": "358,736",
+            "net": "−129,414",
             "netCls": "neg",
-            "longPct": 38,
-            "shortPct": 62
+            "longPct": 39,
+            "shortPct": 61
           },
           {
             "type": "Commercial",
             "sub": "Institutional / Hedgers",
-            "long": "1,427,683",
-            "short": "1,410,382",
-            "net": "+17,301",
+            "long": "1,444,052",
+            "short": "1,438,857",
+            "net": "+5,195",
             "netCls": "pos",
             "longPct": 50,
             "shortPct": 50
@@ -2875,19 +2899,19 @@ const ASSETS = [
           {
             "type": "Dealer / Intermediary",
             "sub": "Client-flow hedging",
-            "long": "193,848",
-            "short": "833,441",
-            "net": "−639,593",
+            "long": "182,419",
+            "short": "870,993",
+            "net": "−688,574",
             "netCls": "neg",
-            "longPct": 19,
-            "shortPct": 81
+            "longPct": 17,
+            "shortPct": 83
           },
           {
             "type": "Asset Manager",
             "sub": "Institutional long-only",
-            "long": "1,111,055",
-            "short": "187,606",
-            "net": "+923,449",
+            "long": "1,111,721",
+            "short": "183,137",
+            "net": "+928,584",
             "netCls": "pos",
             "longPct": 86,
             "shortPct": 14
@@ -2895,22 +2919,22 @@ const ASSETS = [
           {
             "type": "Leveraged Funds",
             "sub": "Hedge funds / CTAs",
-            "long": "102,079",
-            "short": "502,683",
-            "net": "−400,604",
+            "long": "125,269",
+            "short": "497,587",
+            "net": "−372,318",
             "netCls": "neg",
-            "longPct": 17,
-            "shortPct": 83
+            "longPct": 20,
+            "shortPct": 80
           },
           {
             "type": "Other Reportables",
             "sub": "Other institutional",
-            "long": "61,346",
-            "short": "61,665",
-            "net": "−319",
-            "netCls": "neg",
-            "longPct": 50,
-            "shortPct": 50
+            "long": "70,819",
+            "short": "62,730",
+            "net": "+8,089",
+            "netCls": "pos",
+            "longPct": 53,
+            "shortPct": 47
           }
         ]
       }
@@ -2926,8 +2950,8 @@ const ASSETS = [
     "accent": "#bc8cff",
     "bg": "rgba(188,140,255,0.15)",
     "subtitle": "CME · COT Legacy &amp; Financial Futures · Code 209742",
-    "oi": "268,508",
-    "reportDate": "2026-10-27",
+    "oi": "292,587",
+    "reportDate": "2026-11-03",
     "cotHistory": {
       "dates": [
         "2025-01-07",
@@ -3024,7 +3048,8 @@ const ASSETS = [
         "2026-10-06",
         "2026-10-13",
         "2026-10-20",
-        "2026-10-27"
+        "2026-10-27",
+        "2026-11-03"
       ],
       "line1": [
         18770,
@@ -3121,7 +3146,8 @@ const ASSETS = [
         58123,
         48523,
         50726,
-        48839
+        48839,
+        42873
       ],
       "line2": [
         -33742,
@@ -3218,20 +3244,30 @@ const ASSETS = [
         -68446,
         -59827,
         -63576,
-        -62092
+        -62092,
+        -63270
       ],
       "label1": "Non-Commercial Net",
       "label2": "Commercial Net"
     },
     "callHistory": [
       {
+        "cotDate": "2026-11-03",
+        "verdict": "bullish",
+        "verdictLabel": "Bullish",
+        "priceAtDate": 27085.25,
+        "priceNextWeek": null,
+        "priceChangePct": null,
+        "outcome": "pending"
+      },
+      {
         "cotDate": "2026-10-27",
         "verdict": "bullish",
         "verdictLabel": "Bullish",
         "priceAtDate": 28534.0,
-        "priceNextWeek": null,
-        "priceChangePct": null,
-        "outcome": "pending"
+        "priceNextWeek": 27085.25,
+        "priceChangePct": -5.08,
+        "outcome": "wrong"
       },
       {
         "cotDate": "2026-10-20",
@@ -4082,35 +4118,35 @@ const ASSETS = [
     ],
     "callAccuracy": {
       "correct": 25,
-      "wrong": 22,
-      "total": 47,
-      "pct": 53
+      "wrong": 23,
+      "total": 48,
+      "pct": 52
     },
     "verdict": "bullish",
     "verdictLabel": "Bullish",
-    "analysis": "<strong>Asset Managers</strong> — the largest institutional group — are <strong>net long +65,381</strong>, holding 72% long vs 28% short. This reflects sustained bullish institutional conviction.<br><br><strong>Leveraged Funds</strong> (hedge funds, CTAs) are <strong>net long +2,301</strong> (51% long), representing the speculative directional bet. Leveraged funds covered <strong>1,929 short contracts</strong> this week, reducing their bearish exposure. <strong>Dealers</strong> are net <strong>−85,514</strong>, primarily reflecting client-flow hedging.<br><br><strong>Overall bias: Bullish.</strong> Institutional and speculative money are broadly aligned to the upside.",
+    "analysis": "<strong>Asset Managers</strong> — the largest institutional group — are <strong>net long +73,137</strong>, holding 75% long vs 25% short. This reflects sustained bullish institutional conviction.<br><br><strong>Leveraged Funds</strong> (hedge funds, CTAs) are <strong>net long +10,073</strong> (54% long), representing the speculative directional bet. Notably, leveraged funds added <strong>3,755 new short contracts</strong> this week, deepening their bearish positioning. <strong>Dealers</strong> are net <strong>−112,529</strong>, primarily reflecting client-flow hedging.<br><br><strong>Overall bias: Bullish.</strong> Institutional and speculative money are broadly aligned to the upside.",
     "sentimentLabel": "Asset Manager Long vs Short",
-    "sentimentLongPct": 72,
+    "sentimentLongPct": 75,
     "chips": [
       {
         "label": "Asset Mgr Net",
-        "value": "+65,381",
+        "value": "+73,137",
         "cls": "pos"
       },
       {
         "label": "Lev Funds Net",
-        "value": "+2,301",
+        "value": "+10,073",
         "cls": "pos"
       },
       {
         "label": "Dealer Net",
-        "value": "−85,514",
+        "value": "−112,529",
         "cls": "neg"
       },
       {
         "label": "Lev WoW Short",
-        "value": "−1,929",
-        "cls": "pos"
+        "value": "+3,755",
+        "cls": "neg"
       }
     ],
     "sections": [
@@ -4120,19 +4156,19 @@ const ASSETS = [
           {
             "type": "Non-Commercial",
             "sub": "Speculators / Hedge Funds",
-            "long": "84,567",
-            "short": "35,728",
-            "net": "+48,839",
+            "long": "88,899",
+            "short": "46,026",
+            "net": "+42,873",
             "netCls": "pos",
-            "longPct": 70,
-            "shortPct": 30
+            "longPct": 66,
+            "shortPct": 34
           },
           {
             "type": "Commercial",
             "sub": "Institutional / Hedgers",
-            "long": "136,338",
-            "short": "198,430",
-            "net": "−62,092",
+            "long": "150,650",
+            "short": "213,920",
+            "net": "−63,270",
             "netCls": "neg",
             "longPct": 41,
             "shortPct": 59
@@ -4145,42 +4181,42 @@ const ASSETS = [
           {
             "type": "Dealer / Intermediary",
             "sub": "Client-flow hedging",
-            "long": "41,368",
-            "short": "126,882",
-            "net": "−85,514",
+            "long": "39,546",
+            "short": "152,075",
+            "net": "−112,529",
             "netCls": "neg",
-            "longPct": 25,
-            "shortPct": 75
+            "longPct": 21,
+            "shortPct": 79
           },
           {
             "type": "Asset Manager",
             "sub": "Institutional long-only",
-            "long": "106,192",
-            "short": "40,811",
-            "net": "+65,381",
+            "long": "109,642",
+            "short": "36,505",
+            "net": "+73,137",
             "netCls": "pos",
-            "longPct": 72,
-            "shortPct": 28
+            "longPct": 75,
+            "shortPct": 25
           },
           {
             "type": "Leveraged Funds",
             "sub": "Hedge funds / CTAs",
-            "long": "51,171",
-            "short": "48,870",
-            "net": "+2,301",
+            "long": "62,698",
+            "short": "52,625",
+            "net": "+10,073",
             "netCls": "pos",
-            "longPct": 51,
-            "shortPct": 49
+            "longPct": 54,
+            "shortPct": 46
           },
           {
             "type": "Other Reportables",
             "sub": "Other institutional",
-            "long": "12,857",
-            "short": "8,278",
-            "net": "+4,579",
+            "long": "17,469",
+            "short": "8,547",
+            "net": "+8,922",
             "netCls": "pos",
-            "longPct": 61,
-            "shortPct": 39
+            "longPct": 67,
+            "shortPct": 33
           }
         ]
       }
@@ -4196,8 +4232,8 @@ const ASSETS = [
     "accent": "#e8724a",
     "bg": "rgba(232,114,74,0.15)",
     "subtitle": "NYMEX · 1,000 Barrels/contract · COT Legacy Futures · Code 067651",
-    "oi": "1,886,280",
-    "reportDate": "2026-10-27",
+    "oi": "1,908,732",
+    "reportDate": "2026-11-03",
     "cotHistory": {
       "dates": [
         "2025-01-07",
@@ -4294,7 +4330,8 @@ const ASSETS = [
         "2026-10-06",
         "2026-10-13",
         "2026-10-20",
-        "2026-10-27"
+        "2026-10-27",
+        "2026-11-03"
       ],
       "line1": [
         279567,
@@ -4391,7 +4428,8 @@ const ASSETS = [
         99060,
         100343,
         89325,
-        74343
+        74343,
+        80289
       ],
       "line2": [
         -286130,
@@ -4488,20 +4526,30 @@ const ASSETS = [
         -126458,
         -125335,
         -116158,
-        -102968
+        -102968,
+        -111277
       ],
       "label1": "Non-Commercial Net",
       "label2": "Commercial Net"
     },
     "callHistory": [
       {
+        "cotDate": "2026-11-03",
+        "verdict": "mixed",
+        "verdictLabel": "Mixed",
+        "priceAtDate": 90.83,
+        "priceNextWeek": null,
+        "priceChangePct": null,
+        "outcome": "pending"
+      },
+      {
         "cotDate": "2026-10-27",
         "verdict": "mixed",
         "verdictLabel": "Mixed",
         "priceAtDate": 104.12,
-        "priceNextWeek": null,
-        "priceChangePct": null,
-        "outcome": "pending"
+        "priceNextWeek": 90.83,
+        "priceChangePct": -12.76,
+        "outcome": "neutral"
       },
       {
         "cotDate": "2026-10-20",
@@ -5358,24 +5406,24 @@ const ASSETS = [
     },
     "verdict": "mixed",
     "verdictLabel": "Mixed",
-    "analysis": "<strong>Non-commercial traders (speculators &amp; hedge funds)</strong> are <strong>net long</strong> with <strong>+74,343 contracts</strong>, holding 56% long vs 44% short — a clear bullish lean from the speculative community. Week-over-week, specs trimmed <strong>4,944 longs</strong> while added 10,038 new shorts.<br><br><strong>Commercial traders</strong> (producers and hedgers) hold a net position of <strong>−102,968</strong>. This is standard hedging behaviour, not a directional bet. Small traders (non-reportable) are net <strong>+28,625</strong>.<br><br><strong>Overall bias: Mixed.</strong> Positioning is balanced with no strong directional conviction from either side.",
+    "analysis": "<strong>Non-commercial traders (speculators &amp; hedge funds)</strong> are <strong>net long</strong> with <strong>+80,289 contracts</strong>, holding 57% long vs 43% short — a clear bullish lean from the speculative community. Week-over-week, specs trimmed <strong>5,645 longs</strong> while cut 11,591 shorts.<br><br><strong>Commercial traders</strong> (producers and hedgers) hold a net position of <strong>−111,277</strong>. This is standard hedging behaviour, not a directional bet. Small traders (non-reportable) are net <strong>+30,988</strong>.<br><br><strong>Overall bias: Mixed.</strong> Positioning is balanced with no strong directional conviction from either side.",
     "sentimentLabel": "Non-Commercial Long vs Short",
-    "sentimentLongPct": 56,
+    "sentimentLongPct": 57,
     "chips": [
       {
         "label": "Spec Net",
-        "value": "+74,343",
+        "value": "+80,289",
         "cls": "pos"
       },
       {
         "label": "WoW Longs",
-        "value": "−4,944",
+        "value": "−5,645",
         "cls": "neg"
       },
       {
         "label": "WoW Shorts",
-        "value": "+10,038",
-        "cls": "neg"
+        "value": "−11,591",
+        "cls": "pos"
       }
     ],
     "sections": [
@@ -5385,19 +5433,19 @@ const ASSETS = [
           {
             "type": "Non-Commercial",
             "sub": "Speculators / Hedge Funds",
-            "long": "330,168",
-            "short": "255,825",
-            "net": "+74,343",
+            "long": "324,523",
+            "short": "244,234",
+            "net": "+80,289",
             "netCls": "pos",
-            "longPct": 56,
-            "shortPct": 44
+            "longPct": 57,
+            "shortPct": 43
           },
           {
             "type": "Commercial",
             "sub": "Producers / Hedgers",
-            "long": "906,437",
-            "short": "1,009,405",
-            "net": "−102,968",
+            "long": "907,237",
+            "short": "1,018,514",
+            "net": "−111,277",
             "netCls": "neg",
             "longPct": 47,
             "shortPct": 53
@@ -5405,12 +5453,12 @@ const ASSETS = [
           {
             "type": "Non-Reportable",
             "sub": "Small Traders / Retail",
-            "long": "80,615",
-            "short": "51,990",
-            "net": "+28,625",
+            "long": "82,416",
+            "short": "51,428",
+            "net": "+30,988",
             "netCls": "pos",
-            "longPct": 61,
-            "shortPct": 39
+            "longPct": 62,
+            "shortPct": 38
           }
         ]
       }
